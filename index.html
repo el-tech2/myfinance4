@@ -23,6 +23,7 @@
         <label id="passwordLabel" for="passwordInput">Password</label>
         <input id="passwordInput" type="password" placeholder="Masukkan password" required autocomplete="current-password">
         <button class="btn primary full" id="authButton" type="submit">Masuk ke MyFinance</button>
+        <p id="authMessage" class="auth-note" role="alert" aria-live="polite"></p>
       </form>
       <p class="auth-note" id="authNote">Login pribadi • Data tersimpan dan tersinkronisasi melalui cloud</p>
     </div>
@@ -123,7 +124,7 @@
     </div>
   </div>
   <div id="toast" class="toast"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

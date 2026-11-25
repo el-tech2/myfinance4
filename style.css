@@ -98,3 +98,5 @@
 #emailInput{width:100%;margin-bottom:12px}
 #authButton:disabled{opacity:.65;cursor:wait}
 #mergeBackupBtn{white-space:normal}
+
+#authMessage{color:#c94b4b;min-height:18px;margin:8px 0 0;font-size:12px;line-height:1.45}

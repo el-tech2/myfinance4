@@ -1,7 +1,13 @@
 const STORAGE_KEY="myfinance_v1";
 const SUPABASE_URL="https://jngefoskkklaohyutsuv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_ZVrk48XZqX8Gd4s00TsFsw_oMOs8M2m";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const supabaseLibrary = window.supabase;
+if (!supabaseLibrary || typeof supabaseLibrary.createClient !== "function") {
+  console.error("Supabase JS SDK gagal dimuat. Periksa koneksi internet/CDN.");
+}
+const supabase = supabaseLibrary?.createClient
+  ? supabaseLibrary.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)
+  : null;
 let currentUser=null, cloudReady=false, cloudSaveTimer=null, realtimeChannel=null, applyingRemote=false;
 const CATEGORIES=["Perangkat elektronik","Makan","Snack / jajan","SkinCare & Make up","Pakaian","Stationery","Spending hobby","Kebutuhan rumah tangga","Kuota internet","Tagihan bulanan","Sembako","Self reward","Ngasih orang tua","Bayar kuliah","Tidak terduga"];
 const DEFAULT_ACCOUNTS=[{id:"bri",name:"Bank BRI",type:"Bank",icon:"🏦",logo:"bri.png",opening:0},{id:"seabank",name:"SeaBank",type:"Bank",icon:"🌊",logo:"seabank.png",opening:0},{id:"gopay",name:"GoPay",type:"E-Wallet",icon:"🟢",logo:"gopay.webp",opening:0},{id:"dana",name:"DANA",type:"E-Wallet",icon:"🔵",logo:"dana.jpg",opening:0},{id:"cash",name:"Cash",type:"Tunai",icon:"💵",logo:"cash.png",opening:0}];
@@ -100,20 +106,27 @@ function initAuth(){
 $("authForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const email=$("emailInput").value.trim(), password=$("passwordInput").value;
-  $("authButton").disabled=true; $("authButton").textContent="Menghubungkan...";
+  const button=$("authButton"), message=$("authMessage");
+  if(message) message.textContent="";
+  if(!supabase){
+    if(message) message.textContent="Library Supabase belum termuat. Periksa koneksi internet lalu refresh halaman.";
+    return;
+  }
+  button.disabled=true; button.textContent="Menghubungkan...";
   try{
     const {data,error}=await supabase.auth.signInWithPassword({email,password});
     if(error) throw error;
     currentUser=data.user;
     await loadCloudState();
-    subscribeToCloud();
+    await subscribeToCloud();
     enterApp();
     showToast("Berhasil login dan data cloud dimuat.");
   }catch(err){
-    console.error(err);
-    showToast(err.message||"Login gagal. Periksa email, password, dan koneksi.");
+    console.error("MyFinance login error:",err);
+    if(message) message.textContent=err.message||"Login gagal. Periksa email, password, dan konfigurasi Supabase.";
+    else alert(err.message||"Login gagal. Periksa email, password, dan konfigurasi Supabase.");
   }finally{
-    $("authButton").disabled=false; $("authButton").textContent="Masuk ke MyFinance";
+    button.disabled=false; button.textContent="Masuk ke MyFinance";
   }
 });
 async function subscribeToCloud(){
@@ -218,7 +231,7 @@ function printTransactions(){
 $("printTransactionsBtn")?.addEventListener("click",printTransactions);
 
 initAuth();
-supabase.auth.getSession().then(async ({data})=>{
+if (supabase) supabase.auth.getSession().then(async ({data})=>{
   if(data?.session?.user){
     currentUser=data.session.user;
     try{await loadCloudState();await subscribeToCloud();enterApp();}

@@ -37,3 +37,9 @@ CATATAN:
 - Backup JSON berisi data keuangan pribadi; simpan dengan aman.
 - Jika user belum dibuat di Supabase Authentication > Users, login tidak akan berhasil.
 - Realtime broadcast antar perangkat bergantung koneksi; reload halaman akan mengambil data terbaru dari database.
+
+LOGIN BUTTON FIX:
+- Supabase browser SDK now loads from its explicit UMD bundle:
+  https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js
+- Login errors are shown directly under the login button.
+- If SDK/CDN is blocked, the login page displays a clear message instead of silently doing nothing.
